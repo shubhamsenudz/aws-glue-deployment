@@ -3,10 +3,10 @@ name: Glue Job Deployment with JFrog Dependency Management
 on:
   push:
     branches:
-      - main  # Trigger workflow on push to the 'main' branch
+      - master  # Trigger workflow on push to the 'main' branch
   pull_request:
     branches:
-      - main  # Trigger workflow on PR to 'main' branch
+      - master  # Trigger workflow on PR to 'main' branch
 
 jobs:
   deploy:
