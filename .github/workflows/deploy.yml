@@ -1,0 +1,57 @@
+name: Glue Job Deployment with JFrog Dependency Management
+
+on:
+  push:
+    branches:
+      - main  # Trigger workflow on push to the 'main' branch
+  pull_request:
+    branches:
+      - main  # Trigger workflow on PR to 'main' branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest  # GitHub Actions will run this on Ubuntu
+
+    steps:
+      # Step 1: Checkout the code
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Step 2: Set up Python 3.8
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+
+      # Step 3: Install JFrog CLI
+      - name: Install JFrog CLI
+        run: |
+          curl -fL https://getcli.jfrog.io | sh
+          sudo mv jfrog /usr/local/bin/
+
+      # Step 4: Verify JFrog CLI installation
+      - name: Verify JFrog CLI installation
+        run: jfrog --version
+
+      # Step 5: Set up JFrog credentials from GitHub Secrets
+      - name: Set up JFrog credentials
+        run: |
+          echo "JFROG_USERNAME=${{ secrets.JFROG_USERNAME }}" >> $GITHUB_ENV
+          echo "JFROG_API_KEY=${{ secrets.JFROG_API_KEY }}" >> $GITHUB_ENV
+
+      # Step 6: Configure JFrog CLI with the API Key
+      - name: Configure JFrog CLI
+        run: |
+          jfrog rt c --url=https://trial93btb9.jfrog.io --user=$JFROG_USERNAME --apikey=$JFROG_API_KEY
+
+      # Step 7: Download dependencies from your Artifactory repository (glue-pypi)
+      - name: Download dependencies from Artifactory
+        run: |
+          jfrog rt download "glue-pypi/libs/*.tar.gz" --flat=true
+
+      # Step 8: Deploy Glue job (Example Step)
+      - name: Deploy Glue job
+        run: |
+          aws glue update-job \
+            --job-name my-glue-job \
+            --job-update file://glue-job-definition.json
