@@ -54,4 +54,4 @@ jobs:
         run: |
           aws glue update-job \
             --job-name my-glue-job \
-            --job-update file://config/glue-job-definition.json  # Change to the correct path in your repo
+            --job-update file://.//config/glue-job-definition.json  # Change to the correct path in your repo
