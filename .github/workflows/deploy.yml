@@ -1,3 +1,4 @@
+# Example updated GitHub Actions workflow for JFrog Artifactory
 name: Glue Job Deployment with JFrog Dependency Management
 
 on:
@@ -42,9 +43,9 @@ jobs:
       # Step 6: Configure JFrog CLI with the API Key
       - name: Configure JFrog CLI
         run: |
-          jfrog config add my-artifactory --artifactory-url=https://trial93btb9.jfrog.io --user=$JFROG_USERNAME --apikey=$JFROG_API_KEY
+          jfrog config add my-artifactory --artifactory-url=https://trial93btb9.jfrog.io/artifactory --user=$JFROG_USERNAME --apikey=$JFROG_API_KEY
 
-      # Step 7: Download the specific Python package from Artifactory (my_package-0.1.tar.gz)
+      # Step 7: Download dependencies from your Artifactory repository (my_package-0.1.tar.gz)
       - name: Download dependencies from Artifactory
         run: |
           jfrog rt download "glue-pypi/my_package-0.1.tar.gz" --flat=true
