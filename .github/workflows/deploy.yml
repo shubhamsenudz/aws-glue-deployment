@@ -1,4 +1,3 @@
-# Example updated GitHub Actions workflow for JFrog Artifactory
 name: Glue Job Deployment with JFrog Dependency Management
 
 on:
@@ -50,9 +49,9 @@ jobs:
         run: |
           jfrog rt download "glue-pypi/my_package-0.1.tar.gz" --flat=true
 
-      # Step 8: Deploy Glue job (Example Step)
+      # Step 8: Deploy Glue job
       - name: Deploy Glue job
         run: |
           aws glue update-job \
             --job-name my-glue-job \
-            --job-update file://glue-job-definition.json
+            --job-update file://config/glue-job-definition.json  # Change to the correct path in your repo
