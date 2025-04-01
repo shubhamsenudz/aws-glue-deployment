@@ -61,5 +61,5 @@ jobs:
       - name: Deploy Glue job
         run: |
           aws glue update-job \
-            --job-name my-glue-job \
+            --job-name awsRDS \
             --job-update file://aws-glue-deployment/config/glue-job-definition.json  # Updated path
