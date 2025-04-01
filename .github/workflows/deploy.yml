@@ -63,3 +63,8 @@ jobs:
           aws glue update-job \
             --job-name awsRDS \
             --job-update file://aws-glue-deployment/config/glue-job-definition.json  # Updated path
+
+      # Step 10: Start Glue job run (trigger the job)
+      - name: Start Glue job run
+        run: |
+          aws glue start-job-run --job-name awsRDS
