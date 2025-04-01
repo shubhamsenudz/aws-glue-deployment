@@ -39,19 +39,27 @@ jobs:
           echo "JFROG_USERNAME=${{ secrets.JFROG_USERNAME }}" >> $GITHUB_ENV
           echo "JFROG_API_KEY=${{ secrets.JFROG_API_KEY }}" >> $GITHUB_ENV
 
-      # Step 6: Configure JFrog CLI with the API Key
+      # Step 6: Configure JFrog CLI
       - name: Configure JFrog CLI
         run: |
           jfrog config add my-artifactory --artifactory-url=https://trial93btb9.jfrog.io/artifactory --user=$JFROG_USERNAME --apikey=$JFROG_API_KEY
 
-      # Step 7: Download dependencies from your Artifactory repository (my_package-0.1.tar.gz)
+      # Step 7: Download dependencies from Artifactory
       - name: Download dependencies from Artifactory
         run: |
           jfrog rt download "glue-pypi/my_package-0.1.tar.gz" --flat=true
 
-      # Step 8: Deploy Glue job
+      # Step 8: Configure AWS Credentials
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-south-1  # Set your AWS region here
+
+      # Step 9: Deploy Glue job
       - name: Deploy Glue job
         run: |
           aws glue update-job \
             --job-name my-glue-job \
-            --job-update file://.//config/glue-job-definition.json  # Change to the correct path in your repo
+            --job-update file://aws-glue-deployment/config/glue-job-definition.json  # Updated path
