@@ -1,0 +1,14 @@
+{
+  "Role": "arn:aws:iam::851725191119:role/GlueFullAccess",
+  "Command": {
+    "Name": "glueetl",
+    "ScriptLocation": "s3://aws-glue-assets-851725191119-ap-south-1/scripts/awsRDS.py"
+  },
+  "DefaultArguments": {
+    "--TempDir": "s3://aws-glue-assets-851725191119-ap-south-1/temporary/",
+    "--additional-python-modules": "pandas==1.3.3,numpy==1.21.2"
+  },
+  "MaxCapacity": 10.0,
+  "Timeout": 2880,
+  "MaxRetries": 1
+}
