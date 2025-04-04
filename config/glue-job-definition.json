@@ -2,7 +2,7 @@
   "Role": "arn:aws:iam::851725191119:role/GlueFullAccess",
   "Command": {
     "Name": "glueetl",
-    "ScriptLocation": "s3://aws-glue-assets-851725191119-ap-south-1/scripts/awsRDS.py",
+    "ScriptLocation": "s3://aws-glue-assets-851725191119-ap-south-1/scripts/AWSrds2.py",
     "PythonVersion": "3"
   },
   "DefaultArguments": {
