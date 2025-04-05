@@ -2,74 +2,61 @@ name: Glue Job Deployment with JFrog Dependency Management
 
 on:
   push:
-    branches:
-      - master  # Trigger workflow on push to the 'master' branch
+    branches: [master]
   pull_request:
-    branches:
-      - master  # Trigger workflow on PR to 'master' branch
+    branches: [master]
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest  # GitHub Actions will run this on Ubuntu
+    runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout the code
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      # Step 2: Set up Python 3.8
       - name: Set up Python 3.8
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
-          python-version: 3.8
+          python-version: '3.8'
 
-      # Step 3: Install JFrog CLI
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.5.7
+
       - name: Install JFrog CLI
         run: |
           curl -fL https://getcli.jfrog.io | sh
           sudo mv jfrog /usr/local/bin/
 
-      # Step 4: Verify JFrog CLI installation
-      - name: Verify JFrog CLI installation
-        run: jfrog --version
-
-      # Step 5: Set up JFrog credentials from GitHub Secrets
       - name: Set up JFrog credentials
         run: |
           echo "JFROG_USERNAME=${{ secrets.JFROG_USERNAME }}" >> $GITHUB_ENV
           echo "JFROG_API_KEY=${{ secrets.JFROG_API_KEY }}" >> $GITHUB_ENV
 
-      # Step 6: Configure JFrog CLI
       - name: Configure JFrog CLI
         run: |
-          jfrog config add my-artifactory --artifactory-url=https://trial93btb9.jfrog.io/artifactory --user=$JFROG_USERNAME --apikey=$JFROG_API_KEY
+          jfrog config add my-artifactory \
+            --artifactory-url=https://trial93btb9.jfrog.io/artifactory \
+            --user=$JFROG_USERNAME --apikey=$JFROG_API_KEY \
+            --interactive=false
 
-      # Step 7: Download dependencies from Artifactory
-      - name: Download dependencies from Artifactory
+      - name: Download dependencies from JFrog
         run: |
           jfrog rt download "glue-pypi/my_package-0.1.tar.gz" --flat=true
 
-      # Step 8: Configure AWS Credentials
-      - name: Configure AWS Credentials
+      - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ap-south-1  # Set your AWS region here
+          aws-region: ap-south-1
 
-      # ✅ DEBUG STEP: Verify AWS Identity
-      - name: Verify AWS credentials
-        run: |
-          aws sts get-caller-identity
+      - name: Terraform Init
+        run: terraform init
 
-      # Step 9: Deploy Glue job
-      - name: Deploy Glue job
-        run: |
-          aws glue update-job \
-            --job-name AWSrds2 \
-            --job-update file://aws-glue-deployment/config/glue-job-definition.json
+      - name: Terraform Plan
+        run: terraform plan
 
-      # Step 10: Start Glue job run (trigger the job)
-      - name: Start Glue job run
-        run: |
-          aws glue start-job-run --job-name AWSrds2
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
